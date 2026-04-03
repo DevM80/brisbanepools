@@ -16,11 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeScrollEffects();
     initializeFormValidation();
     initializeFloatingButton();
+    
+    // Add fade-in animation to sections
     observeElements();
-
-    // Show Call Me button
-    const floatingCall = document.getElementById('floating-call');
-    if (floatingCall) floatingCall.classList.add('show');
 });
 
 // Event Listeners
@@ -82,27 +80,10 @@ function initializeEventListeners() {
 
 // Floating Button Visibility Control
 function initializeFloatingButton() {
-    const floatingCall = document.getElementById('floating-call');
-
-    console.log('Floating call:', floatingCall);
-
-    if (floatingCall) {
-        floatingCall.classList.add('show');
-    }
-
-    // Clique fora para fechar
-    document.addEventListener('click', function(e) {
-        if (isCallOpen && floatingCall && !floatingCall.contains(e.target)) {
-            closeCallPanel();
-        }
-    });
-
-    // ESC para fechar
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isCallOpen) {
-            closeCallPanel();
-        }
-    });
+    if (!floatingForm) return;
+    
+    // Garante que o botão esteja sempre visível
+    floatingForm.classList.add('show');
 }
 
 // Mobile Menu Functions
@@ -300,43 +281,84 @@ function handleFormSubmission(e) {
     submitForm();
 }
 
-function submitForm() {
-    if (!contactForm) return;
-    
-    const submitBtn = contactForm.querySelector('.submit-btn');
-    if (!submitBtn) return;
-    
-    const originalText = submitBtn.innerHTML;
-    
-    // Show loading state
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    submitBtn.disabled = true;
-    
-    // Simulate API call
+async function submitForm() {
+  if (!contactForm) return;
+
+  const submitBtn = contactForm.querySelector('.submit-btn');
+  if (!submitBtn) return;
+
+  const originalText = submitBtn.innerHTML;
+
+  // Loading state
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+  submitBtn.disabled = true;
+
+  try {
+    // Usa todos os campos do form (inclui o csrf_token e os arquivos)
+    const formData = new FormData(contactForm);
+
+    // Envia para a view do Django (action do form já é /api/quote/)
+    const resp = await fetch(contactForm.action || '/api/quote/', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(errText || 'Failed to submit');
+    }
+
+    // Monta texto para WhatsApp (sem API)
+    const fullName = contactForm.fullName?.value?.trim() || '';
+    const phone    = contactForm.phone?.value?.trim() || '';
+    const address  = contactForm.address?.value?.trim() || '';
+    const number   = contactForm.address_number?.value?.trim() || '';
+    const postal   = contactForm.postal_code?.value?.trim() || '';
+    const poolSize = contactForm.poolSize?.value?.trim() || '—';
+    const poolAge  = contactForm.poolAge?.value?.trim() || '—';
+    const services = Array.from(
+      contactForm.querySelectorAll('input[name="services"]:checked')
+    ).map(i => i.value).join(', ') || '—';
+
+    // ajuste seu número destino (DDI+DDD+número, sem "+")
+    const WA_TO = '61452044521';
+
+    const waText =
+  `*Novo pedido de orçamento*\n` +
+  `*Name:* ${fullName}\n` +
+  `*Phone:* ${phone}\n` +
+  `*Address:* ${address}, ${number} — *PostalCode:* ${postal}\n` +
+  `*Size:* ${poolSize} | *Age:* ${poolAge}\n` +
+  `*Services:* ${services}`;
+
+    const waUrl = `https://wa.me/${WA_TO}?text=${encodeURIComponent(waText)}`;
+    window.open(waUrl, '_blank');
+
+    // Sucesso (mantém seu comportamento original)
+    showFormMessage(
+      "Thank you! Your quote request has been sent successfully. We'll contact you within 24 hours.",
+      'success'
+    );
+
+    contactForm.reset();
+
+    const fileInfo = document.querySelector('.file-info small');
+    if (fileInfo) {
+      fileInfo.textContent = 'Upload up to 3 photos of your pool (JPG, PNG, max 5MB each)';
+      fileInfo.style.color = '';
+    }
+
     setTimeout(() => {
-        // Reset button
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-        
-        // Show success message
-        showFormMessage('Thank you! Your quote request has been sent successfully. We\'ll contact you within 24 hours.', 'success');
-        
-        // Reset form
-        contactForm.reset();
-        
-        // Reset file info
-        const fileInfo = document.querySelector('.file-info small');
-        if (fileInfo) {
-            fileInfo.textContent = 'Upload up to 3 photos of your pool (JPG, PNG, max 5MB each)';
-            fileInfo.style.color = '';
-        }
-        
-        // Close form after delay
-        setTimeout(() => {
-            closeContactForm();
-        }, 3000);
-        
-    }, 2000);
+      closeContactForm();
+    }, 3000);
+
+  } catch (err) {
+    console.error(err);
+    showFormMessage('An error occurred while sending your request. Please try again.', 'error');
+  } finally {
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
+  }
 }
 
 function showFormMessage(message, type) {
@@ -508,9 +530,7 @@ function loadSavedForm() {
 }
 
 // Load saved form data on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadSavedForm();
-});
+document.addEventListener('DOMContentLoaded', loadSavedForm);
 
 // Auto-save form data on input (debounced)
 const debouncedAutoSave = debounce(autoSaveForm, 1000);
@@ -525,44 +545,142 @@ function clearSavedForm() {
 
 // Override submitForm to clear saved data
 const originalSubmitForm = submitForm;
-submitForm = function() {
+window.submitForm = function() {
     originalSubmitForm();
     clearSavedForm();
 };
 
+const MAX_FILES = 3;
+const MAX_SIZE  = 5 * 1024 * 1024; // 5MB
+const ALLOWED   = ['image/jpeg', 'image/jpg', 'image/png'];
 
-// ─── Call Me Panel — exact same pattern as Contact Form ──────────────────────
+function addPhotoInput() {
+  const container = document.getElementById('photo-inputs');
+  const current = container.querySelectorAll('input[type="file"]').length;
+  if (current >= MAX_FILES) {
+    showFormMessage(`You can only upload up to ${MAX_FILES} files.`, 'error');
+    return;
+  }
 
+  const row = document.createElement('div');
+  row.className = 'photo-row';
+
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.name = 'photos';              // MESMO name para todos
+  input.accept = 'image/*';
+  input.addEventListener('change', onSingleFileChange);
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'btn-remove';
+  removeBtn.textContent = '×';
+  removeBtn.title = 'Remove';
+  removeBtn.setAttribute('aria-label', 'Remove photo');
+  removeBtn.onclick = () => removePhotoInput(removeBtn);
+
+  row.appendChild(input);
+  row.appendChild(removeBtn);
+  container.appendChild(row);
+}
+
+function removePhotoInput(btn) {
+  const row = btn.closest('.photo-row');
+  if (row) row.remove();
+  updateFileInfo();
+}
+
+function onSingleFileChange(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+
+  if (!ALLOWED.includes(f.type)) {
+    showFormMessage('Only JPG and PNG files are allowed.', 'error');
+    e.target.value = '';
+    return;
+  }
+  if (f.size > MAX_SIZE) {
+    showFormMessage('Each file must be smaller than 5MB.', 'error');
+    e.target.value = '';
+    return;
+  }
+
+  // reforça o limite total somando todos os inputs
+  const total = totalSelectedFiles();
+  if (total > MAX_FILES) {
+    showFormMessage(`You can only upload up to ${MAX_FILES} files.`, 'error');
+    e.target.value = '';
+    return;
+  }
+  updateFileInfo();
+}
+
+function totalSelectedFiles() {
+  const container = document.getElementById('photo-inputs');
+  let count = 0;
+  container.querySelectorAll('input[type="file"]').forEach(inp => {
+    if (inp.files && inp.files.length) count += inp.files.length;
+  });
+  return count;
+}
+
+function updateFileInfo() {
+  const fileInfo = document.querySelector('.file-info small');
+  if (!fileInfo) return;
+  const names = [];
+  document.querySelectorAll('#photo-inputs input[type="file"]').forEach(inp => {
+    if (inp.files && inp.files[0]) names.push(inp.files[0].name);
+  });
+  if (names.length) {
+    fileInfo.textContent = `Selected: ${names.join(', ')}`;
+    fileInfo.style.color = '#059669';
+  } else {
+    fileInfo.textContent = 'Upload up to 3 photos (JPG/PNG, max 5MB each)';
+    fileInfo.style.color = '';
+  }
+}
+// ─── Call Me Panel ───────────────────────────────────────────────────────────
 let isCallOpen = false;
 
+// Adiciona .show imediatamente, sem esperar DOMContentLoaded
+(function() {
+    function initCall() {
+        const floatingCall = document.getElementById('floating-call');
+        if (floatingCall) floatingCall.classList.add('show');
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCall);
+    } else {
+        initCall(); // DOM já pronto
+    }
+})();
+
+document.addEventListener('click', function (e) {
+    const fc = document.getElementById('floating-call');
+    if (isCallOpen && fc && !fc.contains(e.target)) closeCallPanel();
+});
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isCallOpen) closeCallPanel();
+});
 
 function openCallPanel() {
-    const callContainer = document.getElementById('call-container');
-    if (callContainer) {
-        callContainer.classList.add('active');
-        isCallOpen = true;
-    }
+    const c = document.getElementById('call-container');
+    if (c) { c.classList.add('active'); isCallOpen = true; }
 }
 
 function closeCallPanel() {
-    const callContainer = document.getElementById('call-container');
-    if (callContainer) {
-        callContainer.classList.remove('active');
+    const c = document.getElementById('call-container');
+    if (c) {
+        c.classList.remove('active');
         isCallOpen = false;
         const btn = document.getElementById('copy-btn');
-        if (btn) {
-            btn.innerHTML = '<i class="fas fa-copy"></i> Copy Number';
-            btn.disabled = false;
-        }
+        if (btn) { btn.innerHTML = '<i class="fas fa-copy"></i> Copy Number'; btn.disabled = false; }
     }
 }
 
 function toggleCallPanel() {
-    if (isCallOpen) {
-        closeCallPanel();
-    } else {
-        openCallPanel();
-    }
+    isCallOpen ? closeCallPanel() : openCallPanel();
 }
 
 function copyPhoneNumber() {
@@ -578,7 +696,7 @@ function copyPhoneNumber() {
     });
 }
 
-window.toggleCallPanel  = toggleCallPanel;
-window.openCallPanel    = openCallPanel;
-window.closeCallPanel   = closeCallPanel;
-window.copyPhoneNumber  = copyPhoneNumber;
+window.toggleCallPanel = toggleCallPanel;
+window.openCallPanel = openCallPanel;
+window.closeCallPanel = closeCallPanel;
+window.copyPhoneNumber = copyPhoneNumber;

@@ -82,27 +82,10 @@ function initializeEventListeners() {
 
 // Floating Button Visibility Control
 function initializeFloatingButton() {
-    const floatingCall = document.getElementById('floating-call');
-
-    console.log('Floating call:', floatingCall);
-
-    if (floatingCall) {
-        floatingCall.classList.add('show');
-    }
-
-    // Clique fora para fechar
-    document.addEventListener('click', function(e) {
-        if (isCallOpen && floatingCall && !floatingCall.contains(e.target)) {
-            closeCallPanel();
-        }
-    });
-
-    // ESC para fechar
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isCallOpen) {
-            closeCallPanel();
-        }
-    });
+    if (!floatingForm) return;
+    
+    // Garante que o botão esteja sempre visível
+    floatingForm.classList.add('show');
 }
 
 // Mobile Menu Functions
@@ -508,9 +491,7 @@ function loadSavedForm() {
 }
 
 // Load saved form data on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadSavedForm();
-});
+document.addEventListener('DOMContentLoaded', loadSavedForm);
 
 // Auto-save form data on input (debounced)
 const debouncedAutoSave = debounce(autoSaveForm, 1000);
@@ -535,6 +516,18 @@ submitForm = function() {
 
 let isCallOpen = false;
 
+function initializeFloatingButton() {
+    // botão do form antigo
+    if (floatingForm) {
+        floatingForm.classList.add('show');
+    }
+
+    // botão novo de call
+    const floatingCall = document.getElementById('floating-call');
+    if (floatingCall) {
+        floatingCall.classList.add('show');
+    }
+}
 
 function openCallPanel() {
     const callContainer = document.getElementById('call-container');
