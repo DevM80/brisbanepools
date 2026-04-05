@@ -545,7 +545,7 @@ function clearSavedForm() {
 
 // Override submitForm to clear saved data
 const originalSubmitForm = submitForm;
-submitForm = function() {
+window.submitForm = function() {
     originalSubmitForm();
     clearSavedForm();
 };
@@ -639,3 +639,71 @@ function updateFileInfo() {
     fileInfo.style.color = '';
   }
 }
+
+// ─── Call Me Panel ───────────────────────────────────────────────────────────
+let isCallOpen = false;
+
+function isMobileDevice() {
+    return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
+        || (window.matchMedia('(pointer: coarse)').matches && window.innerWidth < 768);
+}
+
+function handleCallButton(e) {
+    if (isMobileDevice()) {
+        // Mobile: let the tel: link act directly
+        return true;
+    } else {
+        // Desktop: open the panel instead
+        e.preventDefault();
+        toggleCallPanel();
+    }
+}
+
+function openCallPanel() {
+    const c = document.getElementById('call-container');
+    if (c) { c.classList.add('active'); isCallOpen = true; }
+}
+
+function closeCallPanel() {
+    const c = document.getElementById('call-container');
+    if (c) {
+        c.classList.remove('active');
+        isCallOpen = false;
+        const btn = document.getElementById('copy-btn');
+        if (btn) { btn.innerHTML = '<i class="fas fa-copy"></i> Copy Number'; btn.disabled = false; }
+    }
+}
+
+function toggleCallPanel() {
+    isCallOpen ? closeCallPanel() : openCallPanel();
+}
+
+function copyPhoneNumber() {
+    navigator.clipboard.writeText('+61 413 014 515').then(() => {
+        const btn = document.getElementById('copy-btn');
+        if (!btn) return;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        btn.disabled = true;
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-copy"></i> Copy Number';
+            btn.disabled = false;
+        }, 2500);
+    });
+}
+
+// Close panel when clicking outside
+document.addEventListener('click', function(e) {
+    const fc = document.getElementById('floating-call');
+    if (isCallOpen && fc && !fc.contains(e.target)) closeCallPanel();
+});
+
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && isCallOpen) closeCallPanel();
+});
+
+window.handleCallButton = handleCallButton;
+window.toggleCallPanel  = toggleCallPanel;
+window.openCallPanel    = openCallPanel;
+window.closeCallPanel   = closeCallPanel;
+window.copyPhoneNumber  = copyPhoneNumber;
