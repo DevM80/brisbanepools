@@ -90,7 +90,7 @@
                 <p>Professional pool renovation services with guaranteed quality and durability</p>
             </div>
             <div class="services-grid">
-                <div class="service-card fade-in-up" onclick="openLightbox(0)">
+                <button class="service-card fade-in-up" onclick="openLightbox(0)" type="button">
                     <div class="service-image service-image-clickable">
                         <img src="{% static 'img/paint.webp' %}" alt="Pool Painting" class="service-img" loading="lazy" decoding="async" width="180" height="180">
                         <div class="service-img-overlay"><i class="fas fa-expand"></i> View Photo</div>
@@ -103,9 +103,9 @@
                             <li>UV and chemical resistant</li>
                         </ul>
                     </div>
-                </div>
+                </button>
 
-                <div class="service-card fade-in-up" onclick="openLightbox(1)">
+                <button class="service-card fade-in-up" onclick="openLightbox(1)" type="button">
                     <div class="service-image service-image-clickable">
                         <img src="{% static 'img/drop.webp' %}" alt="Osmosis Treatment" class="service-img" loading="lazy" decoding="async" width="180" height="180">
                         <div class="service-img-overlay"><i class="fas fa-expand"></i> View Photo</div>
@@ -119,9 +119,9 @@
                             <li>Long-term protection</li>
                         </ul>
                     </div>
-                </div>
+                </button>
 
-                <div class="service-card fade-in-up" onclick="openLightbox(2)">
+                <button class="service-card fade-in-up" onclick="openLightbox(2)" type="button">
                     <div class="service-image service-image-clickable">
                         <img src="{% static 'img/toolbox.webp' %}" alt="Pool Repairs" class="service-img" loading="lazy" decoding="async" width="180" height="180">
                         <div class="service-img-overlay"><i class="fas fa-expand"></i> View Photo</div>
@@ -135,9 +135,9 @@
                             <li>Waterproofing solutions</li>
                         </ul>
                     </div>
-                </div>
+                </button>
 
-                <div class="service-card fade-in-up" onclick="openLightbox(3)">
+                <button class="service-card fade-in-up" onclick="openLightbox(3)" type="button">
                     <div class="service-image service-image-clickable">
                         <img src="{% static 'img/pool.webp' %}" alt="Full Resurfacing" class="service-img" loading="lazy" decoding="async" width="180" height="180">
                         <div class="service-img-overlay"><i class="fas fa-expand"></i> View Photo</div>
@@ -151,7 +151,7 @@
                             <li>Like-new appearance</li>
                         </ul>
                     </div>
-                </div>
+                </button>
             </div>
 
             <!-- Lightbox -->
@@ -396,7 +396,6 @@
         </div>
         <div style="text-align:center; margin-top: 2rem;">
             <a href="https://share.google/HkxVVJFlEhODNccUN"
-               target="_blank"
                rel="noopener noreferrer"
                class="btn-secondary">
                 <img src="https://www.google.com/favicon.ico" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;" alt="Google">
