@@ -442,22 +442,21 @@ section {
 }
 
 .service-image {
-    height: 200px;
+    height: 220px;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--gray-100);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-4);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 0;
 }
 
 .service-image img {
-    max-width: 80%;
-    max-height: 80%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
 }
 
 .service-content {

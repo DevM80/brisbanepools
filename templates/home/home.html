@@ -90,10 +90,9 @@
                 <p>Professional pool renovation services with guaranteed quality and durability</p>
             </div>
             <div class="services-grid">
-                <button class="service-card fade-in-up" onclick="openLightbox(0)" type="button">
-                    <div class="service-image service-image-clickable">
-                        <img src="{% static 'img/paint.webp' %}" alt="Pool Painting" class="service-img" loading="lazy" decoding="async" width="180" height="180">
-                        <div class="service-img-overlay"><i class="fas fa-expand"></i> View Photo</div>
+                <div class="service-card fade-in-up">
+                    <div class="service-image">
+                        <img src="{% static 'img/painting.webp' %}" alt="Pool Painting" class="service-img" loading="lazy" decoding="async">
                     </div>
                     <div class="service-content">
                         <h3>Painting</h3>
@@ -103,12 +102,11 @@
                             <li>UV and chemical resistant</li>
                         </ul>
                     </div>
-                </button>
+                </div>
 
-                <button class="service-card fade-in-up" onclick="openLightbox(1)" type="button">
-                    <div class="service-image service-image-clickable">
-                        <img src="{% static 'img/drop.webp' %}" alt="Osmosis Treatment" class="service-img" loading="lazy" decoding="async" width="180" height="180">
-                        <div class="service-img-overlay"><i class="fas fa-expand"></i> View Photo</div>
+                <div class="service-card fade-in-up">
+                    <div class="service-image">
+                        <img src="{% static 'img/osmosis_treatment.webp' %}" alt="Osmosis Treatment" class="service-img" loading="lazy" decoding="async">
                     </div>
                     <div class="service-content">
                         <h3>Osmosis Treatment</h3>
@@ -119,12 +117,11 @@
                             <li>Long-term protection</li>
                         </ul>
                     </div>
-                </button>
+                </div>
 
-                <button class="service-card fade-in-up" onclick="openLightbox(2)" type="button">
-                    <div class="service-image service-image-clickable">
-                        <img src="{% static 'img/toolbox.webp' %}" alt="Pool Repairs" class="service-img" loading="lazy" decoding="async" width="180" height="180">
-                        <div class="service-img-overlay"><i class="fas fa-expand"></i> View Photo</div>
+                <div class="service-card fade-in-up">
+                    <div class="service-image">
+                        <img src="{% static 'img/repairs.webp' %}" alt="Pool Repairs" class="service-img" loading="lazy" decoding="async">
                     </div>
                     <div class="service-content">
                         <h3>Repairs</h3>
@@ -135,12 +132,11 @@
                             <li>Waterproofing solutions</li>
                         </ul>
                     </div>
-                </button>
+                </div>
 
-                <button class="service-card fade-in-up" onclick="openLightbox(3)" type="button">
-                    <div class="service-image service-image-clickable">
-                        <img src="{% static 'img/pool.webp' %}" alt="Full Resurfacing" class="service-img" loading="lazy" decoding="async" width="180" height="180">
-                        <div class="service-img-overlay"><i class="fas fa-expand"></i> View Photo</div>
+                <div class="service-card fade-in-up">
+                    <div class="service-image">
+                        <img src="{% static 'img/full_resurfacing.webp' %}" alt="Full Resurfacing" class="service-img" loading="lazy" decoding="async" style="object-position: center 20%;">
                     </div>
                     <div class="service-content">
                         <h3>Full Resurfacing</h3>
@@ -151,18 +147,7 @@
                             <li>Like-new appearance</li>
                         </ul>
                     </div>
-                </button>
-            </div>
-
-            <!-- Lightbox -->
-            <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
-                <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
-                <button class="lightbox-prev" onclick="event.stopPropagation(); changeLightbox(-1)"><i class="fas fa-chevron-left"></i></button>
-                <div class="lightbox-content">
-                    <img id="lightbox-img" src="" alt="">
-                    <p id="lightbox-caption" class="lightbox-caption"></p>
                 </div>
-                <button class="lightbox-next" onclick="event.stopPropagation(); changeLightbox(1)"><i class="fas fa-chevron-right"></i></button>
             </div>
         </div>
     </section>
@@ -396,8 +381,10 @@
         </div>
         <div style="text-align:center; margin-top: 2rem;">
             <a href="https://share.google/HkxVVJFlEhODNccUN"
+               target="_blank"
                rel="noopener noreferrer"
-               class="btn-secondary">
+               class="btn-secondary"
+               onclick="if(navigator.userAgent.match(/Android|iPhone|iPad/i)){window.location.href=this.href;return false;}">
                 <img src="https://www.google.com/favicon.ico" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;" alt="Google">
                 View all reviews on Google
             </a>
@@ -598,50 +585,6 @@
         </div>
     </div>
 
-<script>
-// ─── Lightbox ────────────────────────────────────────────────────────────────
-const lightboxPhotos = [
-    { src: "{% static 'img/painting.webp' %}",          caption: "Painting" },
-    { src: "{% static 'img/osmosis_treatment.webp' %}", caption: "Osmosis Treatment" },
-    { src: "{% static 'img/repairs.webp' %}",           caption: "Repairs" },
-    { src: "{% static 'img/full_resurfacing.webp' %}",  caption: "Full Resurfacing" }
-];
-let currentPhoto = 0;
 
-function openLightbox(index) {
-    currentPhoto = index;
-    showPhoto();
-    document.getElementById('lightbox').classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeLightbox(e) {
-    if (e && e.target !== document.getElementById('lightbox')) return;
-    document.getElementById('lightbox').classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-function changeLightbox(dir) {
-    currentPhoto = (currentPhoto + dir + lightboxPhotos.length) % lightboxPhotos.length;
-    showPhoto();
-}
-
-function showPhoto() {
-    document.getElementById('lightbox-img').src = lightboxPhotos[currentPhoto].src;
-    document.getElementById('lightbox-caption').textContent = lightboxPhotos[currentPhoto].caption;
-}
-
-document.addEventListener('keydown', function(e) {
-    const lb = document.getElementById('lightbox');
-    if (!lb.classList.contains('active')) return;
-    if (e.key === 'Escape') { lb.classList.remove('active'); document.body.style.overflow = ''; }
-    if (e.key === 'ArrowLeft')  changeLightbox(-1);
-    if (e.key === 'ArrowRight') changeLightbox(1);
-});
-
-window.openLightbox   = openLightbox;
-window.closeLightbox  = closeLightbox;
-window.changeLightbox = changeLightbox;
-</script>
 
 {% endblock %}
