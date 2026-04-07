@@ -4,12 +4,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicon-16x16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'img/android-chrome-192x192.png' %}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'img/android-chrome-512x512.png' %}">
+
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="u1_5b3QGJW8waECnPMN5LvfASeT4I-RvVk_FivX6oRo" />
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5CJQSSJ4');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block meta_title %}Fibreglass Pool Renovations in Brisbane | Painting, Osmosis & Resurfacing{% endblock %}</title>
 
 <meta name="description" content="{% block meta_description %}Fibreglass pool cosmetic renovations across Brisbane, Gold Coast and Sunshine Coast. Painting, osmosis treatment, repairs and full resurfacing. Free quote in 24h.{% endblock %}">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
 <!-- Indexação -->
@@ -43,6 +58,10 @@
     {% endblock %}
 </head>
 <body>
+  <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5CJQSSJ4"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
     {% block header %}
 
     <header class="header" style="transform: translateY(0px); box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;">
@@ -76,6 +95,7 @@
     
 
     <script src="{% static 'js/script2.js' %}"></script>
+
     {% block jsonld %}
 <script type="application/ld+json">
 {
